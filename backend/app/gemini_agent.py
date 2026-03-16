@@ -12,7 +12,7 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 from app.models import Vitals
-from app.qsofa import calculate_qsofa, get_risk_description
+from app.qsofa import calculate_qsofa, get_risk_description, calculate_hybrid_risk
 
 load_dotenv()
 
@@ -181,6 +181,9 @@ async def analyze_vitals_with_agent(vitals: Vitals) -> str:
 
     # Compute qSOFA
     qsofa = calculate_qsofa(vitals)
+    
+    # Compute hybrid ML score
+    hybrid = calculate_hybrid_risk(vitals)
 
     # Build user message with vital data
     user_message = f"""Please analyze the following patient vitals and provide a clear explanation:
@@ -196,6 +199,10 @@ qSOFA Score: {qsofa.score}/3
 - Respiratory Rate ≥ 22: {qsofa.criteria.respiratory_rate_elevated}
 - Systolic BP ≤ 100: {qsofa.criteria.systolic_bp_low}
 - Altered Mental Status (GCS < 15): {qsofa.criteria.altered_mental_status}
+
+ML Sepsis Risk Score: {hybrid['ml_score']} (0.0 = no risk, 1.0 = highest risk)
+Combined Risk Level: {hybrid['risk_level'].upper()}
+Clinical Recommendation: {hybrid['recommendation']}
 
 Please call the analyze_vital_signs and interpret_qsofa_score tools, then explain everything in simple language."""
 
