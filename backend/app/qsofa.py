@@ -87,8 +87,11 @@ def calculate_hybrid_risk(vitals: Vitals) -> dict:
     """Combine ML and qSOFA risk scores."""
     qsofa = calculate_qsofa(vitals)
     ml_score = _get_ml_score(vitals)
+    saved = joblib.load(MODEL_PATH)
+
+    print(f"[DEBUG] ML raw score: {ml_score}")
     
-    threshold = 0.5
+    threshold = 0.155  # fallback
     
     # ML >= threshold AND qSOFA >= 2 → "high", alert=True
     if ml_score >= threshold and qsofa.score >= 2:

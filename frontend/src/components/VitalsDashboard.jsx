@@ -1,4 +1,4 @@
-export default function VitalsDashboard({ vitals, qsofa }) {
+export default function VitalsDashboard({ vitals, qsofa, mlScore, mlRiskLevel, recommendation }) {
   if (!vitals) {
     return (
       <div className="card">
@@ -92,6 +92,28 @@ export default function VitalsDashboard({ vitals, qsofa }) {
                 Altered Mental Status (GCS &lt; 15)
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ML Score */}
+      {mlScore !== null && mlScore !== undefined && (
+        <div className="card" style={{ marginTop: 20 }}>
+          <div className="qsofa-display">
+            <div className="vital-label" style={{ marginBottom: 8 }}>AI HYBRID RISK SCORE</div>
+            <div className={`qsofa-score ${mlRiskLevel}`}>
+              {(mlScore * 100).toFixed(1)}<span style={{ fontSize: 24, opacity: 0.5 }}>%</span>
+            </div>
+            <div className="qsofa-label">Machine Learning Sepsis Probability</div>
+            <div className={`qsofa-risk ${mlRiskLevel}`}>
+              {mlRiskLevel === "high" ? "🚨 " : mlRiskLevel === "moderate" ? "⚠️ " : "✅ "}
+              {mlRiskLevel} risk
+            </div>
+            {recommendation && (
+              <div style={{ marginTop: 15, padding: 10, background: 'var(--surface-color)', borderRadius: 8, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                <strong>Recommendation:</strong> {recommendation}
+              </div>
+            )}
           </div>
         </div>
       )}

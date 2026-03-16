@@ -100,3 +100,6 @@ class AnalysisResponse(BaseModel):
     qsofa: QSOFAResult
     alert_sent: bool = False
     alert_details: Optional[list[AlertRecord]] = None
+    ml_score: Optional[float] = None
+    ml_risk_level: Optional[str] = None
+    recommendation: Optional[str] = None

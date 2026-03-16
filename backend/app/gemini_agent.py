@@ -164,6 +164,7 @@ ALWAYS call BOTH tools to provide a complete analysis. After receiving the tool 
 write a clear explanation that:
 - Summarizes each vital sign in plain language (what it is, whether it's normal)
 - Explains the qSOFA score and what it means for sepsis risk
+- Explains the ML risk score and what it means for sepsis risk
 - If risk is HIGH (score >= 2), clearly state this is urgent and medical help should be sought
 - Use empathetic, non-technical language suitable for a worried family member
 - Structure your response with clear sections using markdown headers

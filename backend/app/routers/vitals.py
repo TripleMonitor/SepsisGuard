@@ -6,7 +6,7 @@ from app.models import (
     Vitals, VitalsSubmission, VitalsRecord, AnalysisRequest,
     AnalysisResponse, AlertRecord,
 )
-from app.qsofa import calculate_qsofa
+from app.qsofa import calculate_qsofa, calculate_hybrid_risk
 from app.gemini_agent import analyze_vitals_with_agent
 from app.email_alerts import send_alert_email
 from app.routers.patients import patients_db
@@ -40,6 +40,7 @@ async def submit_vitals(patient_id: str, data: VitalsSubmission):
 
     # Calculate qSOFA
     qsofa = calculate_qsofa(vitals)
+    hybrid = calculate_hybrid_risk(vitals)
 
     # Store vitals record
     record = VitalsRecord(vitals=vitals, qsofa=qsofa)
@@ -53,7 +54,7 @@ async def submit_vitals(patient_id: str, data: VitalsSubmission):
 
     # Send alerts if high risk
     alerts_sent = []
-    if qsofa.score >= 2 and patient.emergency_contacts:
+    if hybrid["alert"] and patient.emergency_contacts:
         alerts_sent = send_alert_email(
             patient_name=patient.name,
             patient_id=patient.id,
@@ -68,6 +69,9 @@ async def submit_vitals(patient_id: str, data: VitalsSubmission):
         qsofa=qsofa,
         alert_sent=len(alerts_sent) > 0,
         alert_details=alerts_sent if alerts_sent else None,
+        ml_score=hybrid["ml_score"],
+        ml_risk_level=hybrid["risk_level"],
+        recommendation=hybrid["recommendation"],
     )
 
 
@@ -86,6 +90,7 @@ async def analyze_vitals(data: AnalysisRequest):
     Useful for quick checks.
     """
     qsofa = calculate_qsofa(data.vitals)
+    hybrid = calculate_hybrid_risk(data.vitals)
 
     try:
         explanation = await analyze_vitals_with_agent(data.vitals)
@@ -96,6 +101,9 @@ async def analyze_vitals(data: AnalysisRequest):
         explanation=explanation,
         qsofa=qsofa,
         alert_sent=False,
+        ml_score=hybrid["ml_score"],
+        ml_risk_level=hybrid["risk_level"],
+        recommendation=hybrid["recommendation"],
     )
 
 

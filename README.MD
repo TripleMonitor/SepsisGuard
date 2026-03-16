@@ -106,6 +106,8 @@ ALERT_EMAIL_TO=caregiver@gmail.com
 
 ### 4. Start the backend
 ```bash
+cd backend
+venv\Scripts\activate
 uvicorn app.main:app --reload --port 3001
 ```
 

@@ -13,6 +13,9 @@ function App() {
   const [activeTab, setActiveTab] = useState("register");
   const [lastVitals, setLastVitals] = useState(null);
   const [lastQsofa, setLastQsofa] = useState(null);
+  const [mlScore, setMlScore] = useState(null);
+  const [mlRiskLevel, setMlRiskLevel] = useState(null);
+  const [recommendation, setRecommendation] = useState(null);
   const [aiExplanation, setAiExplanation] = useState("");
   const [alertSent, setAlertSent] = useState(false);
   const [alertDetails, setAlertDetails] = useState([]);
@@ -52,14 +55,17 @@ function App() {
       const result = await submitVitals(selectedPatient.id, vitals);
       setLastVitals(vitals);
       setLastQsofa(result.qsofa);
+      setMlScore(result.ml_score);
+      setMlRiskLevel(result.ml_risk_level);
+      setRecommendation(result.recommendation);
       setAiExplanation(result.explanation);
       setAlertSent(result.alert_sent);
       if (result.alert_details) setAlertDetails(result.alert_details);
 
-      if (result.qsofa.score >= 2) {
-        showNotification("danger", `⚠️ HIGH RISK! qSOFA Score: ${result.qsofa.score}/3`);
+      if (result.ml_risk_level === "high") {
+        showNotification("danger", `⚠️ HIGH RISK! ML Score: ${(result.ml_score * 100).toFixed(1)}% | qSOFA: ${result.qsofa.score}/3`);
       } else {
-        showNotification("success", `Vitals analyzed — qSOFA Score: ${result.qsofa.score}/3`);
+        showNotification("success", `Vitals analyzed — Risk Level: ${result.ml_risk_level}`);
       }
     } catch (err) {
       showNotification("danger", `Error: ${err.message}`);
@@ -121,6 +127,9 @@ function App() {
                   setSelectedPatient(p || null);
                   setLastVitals(null);
                   setLastQsofa(null);
+                  setMlScore(null);
+                  setMlRiskLevel(null);
+                  setRecommendation(null);
                   setAiExplanation("");
                   setAlertSent(false);
                   setAlertDetails([]);
@@ -154,7 +163,13 @@ function App() {
                 {/* Left Column: Input + Dashboard */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                   <VitalsForm onSubmit={handleVitalsSubmit} loading={analyzing} />
-                  <VitalsDashboard vitals={lastVitals} qsofa={lastQsofa} />
+                  <VitalsDashboard 
+                    vitals={lastVitals} 
+                    qsofa={lastQsofa} 
+                    mlScore={mlScore} 
+                    mlRiskLevel={mlRiskLevel} 
+                    recommendation={recommendation} 
+                  />
                 </div>
 
                 {/* Right Column: AI + Alerts */}
